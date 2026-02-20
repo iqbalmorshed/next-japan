@@ -1,0 +1,44 @@
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 3. Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # # 4. Run tests and generate coverage
+      # - name: Run Tests with Coverage
+      #   run: |
+      #     npm run test -- --coverage
+      #   env:
+      #     CI: true
+
+      # 5. Run SonarQube scanner
+      - name: SonarQube Scan
+        uses: sonarsource/sonarcloud-github-action@v2
+        with:
+          args: >
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.projectKey=nextjs-project
+            -Dsonar.organization=my-org
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
